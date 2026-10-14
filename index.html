@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>英打遊戲版本 2</title>
+<style>
+  :root { font-family: system-ui, "Noto Sans TC", "Microsoft JhengHei", sans-serif; color: #243e38; background: #f5f3ec; line-height: 1.7; }
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  main { max-width: 1040px; margin: auto; padding: 36px 24px; }
+  h1 { font-size: clamp(28px, 4.5vw, 44px); line-height: 1.3; margin: 0 0 18px; }
+  .panel { background: #fff; border: 1px solid #ccd7ce; border-radius: 20px; padding: 24px; margin: 20px 0; }
+  img { width: 100%; height: auto; display: block; border-radius: 12px; }
+  .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 16px; }
+  button { font: inherit; padding: 12px 28px; border: 1px solid #426d5e; background: #426d5e; color: #fff; border-radius: 12px; cursor: pointer; }
+  button:hover:not(:disabled) { filter: brightness(.95); }
+  button:disabled { opacity: .5; cursor: default; }
+  :focus-visible { outline: 3px solid #b16b35; outline-offset: 4px; }
+  #message { min-height: 2em; margin: 12px 0 0; }
+  #message.error { color: #a1332e; }
+  @media (max-width: 700px) { main { padding: 22px 14px; } .panel { padding: 16px; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>英打遊戲版本 2</h1>
+  <section class="panel">
+    <img id="keyboardImage" src="assets/keyboard.png" alt="英文鍵盤示意圖，中央列為 ASDFGHJKL 與分號">
+    <div class="row">
+      <button id="start" type="button">開始</button>
+      <span>按下後會發出兩聲嗶聲。</span>
+    </div>
+    <p id="message" role="status"></p>
+    <audio id="beep" preload="auto" src="assets/beep.wav"></audio>
+  </section>
+</main>
+<script>
+  const button = document.getElementById('start');
+  const sound = document.getElementById('beep');
+  const message = document.getElementById('message');
+  const image = document.getElementById('keyboardImage');
+
+  function show(text, isError) {
+    message.textContent = text;
+    message.className = isError ? 'error' : '';
+  }
+
+  image.addEventListener('error', () => {
+    image.style.display = 'none';
+    show('找不到鍵盤圖片 assets/keyboard.png，請確認 assets 資料夾已一起上傳。', true);
+  });
+
+  sound.addEventListener('error', () => {
+    button.disabled = false;
+    show('找不到聲音檔 assets/beep.wav，請確認 assets 資料夾已一起上傳。', true);
+  });
+
+  sound.addEventListener('ended', () => { button.disabled = false; });
+
+  button.addEventListener('click', async () => {
+    button.disabled = true;
+    show('', false);
+    sound.currentTime = 0;
+    try {
+      await sound.play();
+    } catch (e) {
+      button.disabled = false;
+      show('聲音無法播放，請確認 assets/beep.wav 存在，且瀏覽器允許播放聲音。', true);
+    }
+  });
+</script>
+</body>
+</html>
